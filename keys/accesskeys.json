@@ -1,0 +1,22 @@
+{
+   "yelp" : [
+     {"oath_consumer_key" : "ernVcFe2YuFwYK95EVoDAw"},
+     {"oath_consumer_secret" : "INKN5rMBzyJVyLG7AbXOQ0ijKHM"},
+     {"oath_token" : "A7VWyGfQXI80FuPnbQUn2qMUJRhvWz1N"},
+     {"oath_token_secret" : "G-TtDbI6DZqknSm6d5Id7crfT4k"}
+    ],
+   "foursquare" : [
+     {"clientid" : "P50AW4EV3GMLBBY2DKL3GBGQGZDGSE2BLHBSVJ2Z1LCHVCND"},
+     {"clientsec" : "JM120WIHNWZD1M2LSFZSOROBDZADTLLLA5BQKEHFIV5GKUC1"}
+   ],
+   "eventbrite" : [
+     {"oath_consumer_key" : "HWA7NIJEFOC4DDN3C3"},
+     {"oath_consumer_secret" : "VVDV6Q32YMYZYUM5P6ALSXYO6HHPYZRO5O3G64EREOEFRRXIIP"},
+     {"oath_token" : "TMIK6S67BXMHQJHHJZSS"},
+     {"oath_token_secret" : "UPHODDXZVP36NRYQ3VAR"}
+   ],
+    "facebook" : [
+      {"app_id" : "859974750768076"},
+      {"app_secret" : "f0ee9504ea8bbbc311b91fcdda26414f"}
+    ]
+ }
