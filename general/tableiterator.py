@@ -25,10 +25,25 @@ class TableIterator:
         self.tableName = newTableName
         self.table = dynamodb.Table(tableName)
 
+    def getPrimaryKey(self):
+        return self.PRIMARYKEY
+
+    def setPrimaryKey(self, primarykey):
+        self.PRIMARYKEY = primarykey
+
+    def getUpdateExpression(self):
+        return self.UPDATEEXPRESSION
+
+    def setUpdateExpression(self, update_expression):
+        self.UPDATEEXPRESSION = update_expression
+
     def narcolepsy(self):
         randy = randint(10, 20)
         print("Sleeping:", randy)
         sleep(randy)
+
+    def putItem(self, item):
+        self.table.put_item(Item=item)
 
     def getBatchGetItemSize(self):
         return self.BATCHGETITEMSIZE
@@ -45,9 +60,10 @@ class TableIterator:
         response = self.table.scan(TableName=self.tableName, ProjectionExpression=projection, ExpressionAttributeNames={'#L' : 'location', '#N' : 'name'})
         return response
 
-    def batchGetItemAttributes(self, attributes, startKey):
-        response = self.table.scan(TableName=self.tableName, ProjectionExpression=attributes, ExclusiveStartKey=startKey)
-        return response
+    def batchGetItemAttributes(self, attributes, startKey=None):
+        if startKey is not None:
+            return self.table.scan(TableName=self.tableName, ProjectionExpression=attributes, ExclusiveStartKey=startKey)
+        return self.table.scan(TableName=self.tableName, ProjectionExpression=attributes)
 
     def batchGetItemWithName(self, attributes, startKey):
         projection = '#N,' + attributes
@@ -58,12 +74,35 @@ class TableIterator:
         select = "ALL_ATTRIBUTES"
         response = self.table.scan(TableName=self.tableName, select=select, ComparisonOperator=comparisonOperator)
 
-    def updateItem(self, item, attributeToUpdate, updatedValue, attributeValueType):
-        address_key = item[self.PRIMARYKEY]
-        print(address_key)
-        updateExpression = self.UPDATEEXPRESSION + " " + attributeToUpdate + "=:" + updatedValue
-        self.table.update_item(TableName=self.tableName, Key={self.PRIMARYKEY: address_key}, UpdateExpression=updateExpression, ExpressionAttributeValues={":"+updatedValue : updatedValue})
+    def updateItemSet(self, itemkey, attributeToUpdate, updatedValue):
+        key = itemkey
+        updateExpression = 'SET' + " " + attributeToUpdate + "= :l"
+        self.table.update_item(TableName=self.tableName, Key={self.PRIMARYKEY: key}, UpdateExpression=updateExpression, ExpressionAttributeValues={":l" : updatedValue})
         #try:
         #    self.table.update_item(TableName=self.tableName, Key={self.PRIMARYKEY: {self.PRIMARYKEYTYPE : address_key}}, AttributeUpdates={attributeToUpdate : {'Value' : {attributeValueType : updatedValue}}})
         #except Exception:
         #    print('failed to update item')
+
+    def updateItemSetList(self, itemkey, attributeToUpdate, updatedValue):
+        key = itemkey
+        updateExpression = 'SET ' + attributeToUpdate + " = list_append(" + attributeToUpdate + ", :l)"
+        self.table.update_item(TableName=self.tableName, Key={self.PRIMARYKEY: key}, UpdateExpression=updateExpression, ExpressionAttributeValues={":l" : updatedValue})
+
+    def updateItemAdd(self, itemkey, attributeToUpdate, updatedValue):
+        key = itemkey
+        print("attributetoupdate", updatedValue)
+        updateExpression = 'ADD' + " " + attributeToUpdate + " :l"
+        self.table.update_item(TableName=self.tableName, Key={self.PRIMARYKEY: key}, UpdateExpression=updateExpression, ExpressionAttributeValues={":l" : updatedValue})
+
+
+    def batchGetItemWithFBID(self, attributes=None, startkey=None):
+        if attributes is not None:
+            projection = 'address_key, facebook_id, ' + attributes
+        else:
+            projection = 'address_key, facebook_id'
+        filterexpression = 'attribute_exists(facebook_id)'
+        if startkey is not None:
+            response = self.table.scan(TableName=self.tableName, ProjectionExpression=projection, FilterExpression=filterexpression, ExclusiveStartKey=startkey)
+            return response
+        response = self.table.scan(TableName=self.tableName, ProjectionExpression=projection, FilterExpression=filterexpression)
+        return response

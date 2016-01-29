@@ -46,7 +46,7 @@ def iterateResponses():
                 if addressEquals(facebookAddress['location']['street'], response['location']['display_address'][0]):
                     totalIdCount += 1
                     print("==================match on first response: ", totalIdCount)
-                    tableiter.updateItem(response, 'facebook_id', name['id'], 'S')
+                    tableiter.updateItemSet(response['address_key'], 'facebook_id', name['id'], 'S')
                     break
             except KeyError:
                 try:
@@ -55,7 +55,7 @@ def iterateResponses():
                     if facebookAddress['location']['street'] == response['location']['display_address'][0]:
                         totalIdCount += 1
                         print("=================match on first parent: ", totalIdCount)
-                        tableiter.updateItem(response, 'facebook_id', name['id'], 'S')
+                        tableiter.updateItemSet(response['address_key'], 'facebook_id', name['id'], 'S')
                         break
                 except Exception:
                     pass
@@ -73,7 +73,7 @@ def iterateResponses():
                     if addressEquals(facebookAddress['location']['street'], response['location']['display_address'][0]):
                         totalIdCount += 1
                         print("=================match on next response: ", totalIdCount)
-                        tableiter.updateItem(response, 'facebook_id', name['id'], 'S')
+                        tableiter.updateItemSet(response['address_key'], 'facebook_id', name['id'], 'S')
                         break
                 except KeyError:
                     try:
@@ -83,7 +83,7 @@ def iterateResponses():
                         if facebookAddress['location']['street'] == response['location']['display_address'][0]:
                             totalIdCount += 1
                             print("=================match on next parent: ", totalIdCount)
-                            tableiter.updateItem(response, 'facebook_id', name['id'], 'S')
+                            tableiter.updateItemSet(response['address_key'], 'facebook_id', name['id'], 'S')
                             break
                     except Exception:
                         pass
