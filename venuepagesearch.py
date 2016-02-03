@@ -5,11 +5,11 @@ import re
 from general.tableiterator import TableIterator
 
 
-TABLENAME = "YelpVenues"
+TABLENAME = "FoursquareVenues"
 ATTRIBUTES = "address_key, #L"
 LOCATIONCENTER = '37.78, -122.417'
 DISTANCE = '500'
-secretsLocation = '/Users/tgebhart/Documents/Work/aivibe/code/api_stuff/keys/accesskeys.json'
+secretsLocation = '/home/tgebhart/Documents/Work/aivibe/code/api_stuff/keys/accesskeys.json'
 app_id = ""
 app_secret = ""
 authHash = ""
@@ -35,7 +35,12 @@ def iterateResponses():
     totalIdCount = 0
     tableiter = TableIterator(TABLENAME)
     firstResponse = iterateFirstResponse()
-    lastResponse = firstResponse['LastEvaluatedKey']
+    last_response = ""
+    try:
+        last_response = firstResponse['LastEvaluatedKey']
+    except KeyError:
+        pass
+
 
     for response in firstResponse['Items']:
         facebookNames = facebookSearchName(response['name'])
@@ -60,10 +65,11 @@ def iterateResponses():
                 except Exception:
                     pass
 
+    key_err = False
+    if last_response != "":
+        key_err = True
 
-    nextResponse = tableiter.batchGetItemWithName(ATTRIBUTES, lastResponse)
-    keyErr = False
-    while keyErr == False:
+    while key_err == False:
         for response in nextResponse['Items']:
             facebookNames = facebookSearchName(response['name'])
             for name in facebookNames['data']:
@@ -90,8 +96,8 @@ def iterateResponses():
 
         tableiter.narcolepsy()
         try:
-            lastResponse = firstResponse['LastEvaluatedKey']
-            nextResponse = tableiter.batchGetItemWithName(ATTRIBUTES, lastResponse)
+            last_response = firstResponse['LastEvaluatedKey']
+            nextResponse = tableiter.batchGetItemWithName(ATTRIBUTES, last_response)
         except KeyError:
             keyErr = True
 
