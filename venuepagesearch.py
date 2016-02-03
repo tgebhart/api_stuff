@@ -3,27 +3,12 @@ import boto3
 import requests
 import re
 from general.tableiterator import TableIterator
-
+from facebookapi.facebookapi import FacebookApi
 
 TABLENAME = "FoursquareVenues"
 ATTRIBUTES = "address_key, #L"
-LOCATIONCENTER = '37.78, -122.417'
-DISTANCE = '500'
-secretsLocation = '/home/tgebhart/Documents/Work/aivibe/code/api_stuff/keys/accesskeys.json'
-app_id = ""
-app_secret = ""
-authHash = ""
+secretsLocation = '/Users/tgebhart/Documents/Work/aivibe/code/api_stuff/keys/accesskeys.json'
 
-
-def findSecrets():
-    with open(secretsLocation) as data_file:
-        jason = json.load(data_file)
-    for s in jason:
-        if s == "facebook":
-            app_id = jason[s][0]['app_id']
-            app_secret = jason[s][1]['app_secret']
-    authHash = app_id + "|" + app_secret
-    return authHash
 
 
 def iterateFirstResponse():
@@ -32,6 +17,8 @@ def iterateFirstResponse():
     return response
 
 def iterateResponses():
+    facebookapi = FacebookApi()
+    facebookapi.generateAccessToken()
     totalIdCount = 0
     tableiter = TableIterator(TABLENAME)
     firstResponse = iterateFirstResponse()
@@ -43,9 +30,10 @@ def iterateResponses():
 
 
     for response in firstResponse['Items']:
-        facebookNames = facebookSearchName(response['name'])
+        facebookNames = facebookapi.facebookSearchName(response['name'])
         for name in facebookNames['data']:
-            facebookAddress = facebookGetAddress(name['id'])
+            print(name)
+            facebookAddress = facebookapi.facebookGetAddress(name['id'])
             try:
                 print(facebookAddress['location']['street'], " || ", response['location']['display_address'][0])
                 if addressEquals(facebookAddress['location']['street'], response['location']['display_address'][0]):
@@ -56,7 +44,7 @@ def iterateResponses():
             except KeyError:
                 try:
                     parentId = facebookAddress['location']['located_in']
-                    facebookAddress = facebookGetAddress(parentId)
+                    facebookAddress = facebookapi.facebookGetAddress(parentId)
                     if facebookAddress['location']['street'] == response['location']['display_address'][0]:
                         totalIdCount += 1
                         print("=================match on first parent: ", totalIdCount)
@@ -71,9 +59,9 @@ def iterateResponses():
 
     while key_err == False:
         for response in nextResponse['Items']:
-            facebookNames = facebookSearchName(response['name'])
+            facebookNames = facebookapi.facebookSearchName(response['name'])
             for name in facebookNames['data']:
-                facebookAddress = facebookGetAddress(name['id'])
+                facebookAddress = facebookapi.facebookGetAddress(name['id'])
                 try:
                     print(facebookAddress['location']['street'], " || ", response['location']['display_address'][0])
                     if addressEquals(facebookAddress['location']['street'], response['location']['display_address'][0]):
@@ -84,7 +72,7 @@ def iterateResponses():
                 except KeyError:
                     try:
                         parentId = facebookAddress['location']['located_in']
-                        facebookAddress = facebookGetAddress(parentId)
+                        facebookAddress = facebookapi.facebookGetAddress(parentId)
                         print("second try: ", facebookAddress)
                         if facebookAddress['location']['street'] == response['location']['display_address'][0]:
                             totalIdCount += 1
@@ -117,18 +105,6 @@ def standardizeAddress(s):
         s.replace('Road', 'Rd')
     if 'Parkway' in s:
         s.replace('Parkway', 'Pkwy')
-
     return s
 
-
-def facebookSearchName(name):
-    payload = {'q' : name, 'type' : 'page', 'center' : LOCATIONCENTER, 'distance' : DISTANCE, 'topic_filter' : 'all', 'access_token' : authHash}
-    return json.loads(requests.get("https://graph.facebook.com/search", params=payload).text)
-
-def facebookGetAddress(id):
-    payload = {'id' : id, 'fields' : {'name', 'location'}, 'access_token' : authHash}
-    return json.loads(requests.get("https://graph.facebook.com/v2.5/", params=payload).text)
-
-
-authHash = findSecrets()
 iterateResponses()

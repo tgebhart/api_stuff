@@ -7,7 +7,7 @@ from time import sleep
 
 class FacebookApi:
 
-    secretsLocation = '/home/tgebhart/Documents/Work/aivibe/code/api_stuff/keys/accesskeys.json'
+    secretsLocation = '/Users/tgebhart/Documents/Work/aivibe/code/api_stuff/keys/accesskeys.json'
     app_id = ""
     app_secret = ""
     authHash = ""
@@ -15,6 +15,8 @@ class FacebookApi:
     eventsSince = "1/31/2013"
     APIENDPOINT = "https://graph.facebook.com/v2.5"
     SEARCHENDPOINT = "https://graph.facebook.com/search"
+    LOCATIONCENTER = '37.78, -122.417'
+    DISTANCE = '500'
 
     def _init_(self):
         print('locationapi init')
@@ -103,10 +105,10 @@ class FacebookApi:
         else:
             return (None, None)
 
-    def facebookSearchName(name):
-        payload = {'q' : name, 'type' : 'page', 'center' : LOCATIONCENTER, 'distance' : DISTANCE, 'topic_filter' : 'all', 'access_token' : self.authHash}
+    def facebookSearchName(self, name):
+        payload = {'q' : name, 'type' : 'page', 'center' : self.LOCATIONCENTER, 'distance' : self.DISTANCE, 'topic_filter' : 'all', 'access_token' : self.authHash}
         return json.loads(requests.get(self.SEARCHENDPOINT, params=payload).text)
 
-    def facebookGetAddress(id):
+    def facebookGetAddress(self, id):
         payload = {'id' : id, 'fields' : {'name', 'location'}, 'access_token' : self.authHash}
         return json.loads(requests.get(self.APIENDPOINT, params=payload).text)
