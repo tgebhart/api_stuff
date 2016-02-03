@@ -7,7 +7,7 @@ from time import sleep
 
 class FacebookApi:
 
-    secretsLocation = '/Users/tgebhart/Documents/Work/aivibe/code/api_stuff/keys/accesskeys.json'
+    secretsLocation = '/home/tgebhart/Documents/Work/aivibe/code/api_stuff/keys/accesskeys.json'
     app_id = ""
     app_secret = ""
     authHash = ""

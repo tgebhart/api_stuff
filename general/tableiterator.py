@@ -60,9 +60,9 @@ class TableIterator:
         response = self.table.scan(TableName=self.tableName, ProjectionExpression=projection, ExpressionAttributeNames={'#L' : 'location', '#N' : 'name'})
         return response
 
-    def batchGetItemAttributes(self, attributes, startKey=None):
-        if startKey is not None:
-            return self.table.scan(TableName=self.tableName, ProjectionExpression=attributes, ExclusiveStartKey=startKey)
+    def batchGetItemAttributes(self, attributes, startkey=None):
+        if startkey is not None:
+            return self.table.scan(TableName=self.tableName, ProjectionExpression=attributes, ExclusiveStartKey=startkey)
         return self.table.scan(TableName=self.tableName, ProjectionExpression=attributes)
 
     def batchGetItemWithName(self, attributes, startKey):

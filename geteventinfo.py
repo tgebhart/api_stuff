@@ -33,7 +33,7 @@ def getAttending():
         updateAttendees(response, attendee_list, tableiter, attendeeiter)
 
     while last_key is not None:
-        next_response = batchGetItemAttributes(ATTRIBUTES, startkey=last_key)
+        next_response = tableiter.batchGetItemAttributes(ATTRIBUTES, startkey=last_key)
         print(next_response)
         for response in next_response['Items']:
             attendee_list = makeAttendeeList(facebookapi, response)
@@ -78,13 +78,13 @@ def makeAttendeeList(facebookapi, response):
 
     while nextpage is not None:
         nextresponse = facebookapi.getEventInfo(response['facebook_event_id'], EVENTATTRIBUTES, startkey=nextpage)
-
         try:
-            next_list = nextresponse['attending']['data']
+            next_list = nextresponse['data']
             for person in next_list:
+                print(person)
                 attendee_list.append(person)
             try:
-                nextpage = nextresponse['attending']['paging']['next']
+                nextpage = nextresponse['paging']['next']
             except KeyError:
                 nextpage = None
         except KeyError:
