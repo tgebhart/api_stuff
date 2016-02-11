@@ -18,10 +18,8 @@ eventtable = dynamodb.Table(EVENTTABLENAME)
 
 def getAttending():
     totalIdCount = 0
-    tableiter = TableIterator(EVENTTABLENAME)
-    tableiter.setPrimaryKey('facebook_event_id')
-    attendeeiter = TableIterator(ATTENDEETABLENAME)
-    attendeeiter.setPrimaryKey('facebook_user_id')
+    tableiter = TableIterator(EVENTTABLENAME, 'facebook_event_id')
+    attendeeiter = TableIterator(ATTENDEETABLENAME,'facebook_user_id')
     first_response = tableiter.batchGetItemAttributes(ATTRIBUTES)
     last_key = first_response['LastEvaluatedKey']
     facebookapi = FacebookApi()
@@ -53,12 +51,24 @@ def updateAttendees(response, attendee_list, tableiter, attendeeiter):
         tableiter.updateItemSet(response['facebook_event_id'], 'raw_attending_count', num_attendees)
         for attendee in attendee_list:
             print(attendee)
-            new_attendee = {}
-            new_attendee['facebook_user_id'] = attendee['id']
-            new_attendee['facebook_name'] = attendee['name']
-            new_attendee['raw_events_attended'] = []
-            attendeeiter.putItem(new_attendee)
-            attendeeiter.updateItemSetList(new_attendee['facebook_user_id'], 'raw_events_attended', [response['facebook_event_id']])
+            previous_attendee = None
+
+            try:
+                previous_attendee = attendeeiter.getItem(attendee['id'], "facebook_user_id")
+                previous_attendee = previous_attendee['Item']
+            except Exception:
+                previous_attendee = None
+                pass
+
+            if previous_attendee is not None:
+                attendeeiter.updateItemAdd(previous_attendee['facebook_user_id'], 'raw_events_attended', set([response['facebook_event_id']]))
+            else:
+                new_attendee = {}
+                new_attendee['facebook_user_id'] = attendee['id']
+                new_attendee['facebook_name'] = attendee['name']
+                new_attendee['raw_events_attended'] = set([response['facebook_event_id']])
+                attendeeiter.putItem(new_attendee)
+
 
 
 def makeAttendeeList(facebookapi, response):
