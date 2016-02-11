@@ -7,7 +7,7 @@ from time import sleep
 
 class FacebookApi:
 
-    secretsLocation = '/Users/tgebhart/Documents/Work/aivibe/code/api_stuff/keys/accesskeys.json'
+    secretsLocation = '/home/tgebhart/Documents/Work/aivibe/code/api_stuff/keys/accesskeys.json'
     app_id = ""
     app_secret = ""
     authHash = ""
@@ -36,7 +36,7 @@ class FacebookApi:
         append = "/oauth/access_token"
         payload = {'client_id' : self.app_id, 'client_secret' : self.app_secret, 'grant_type' : 'client_credentials'}
         resp = json.loads(requests.get(self.APIENDPOINT + append, params=payload).text)
-        access_token = resp
+        self.access_token = resp['access_token']
 
     def getSecretsLocation(self):
         return self.secretsLocation
@@ -65,13 +65,13 @@ class FacebookApi:
 
     def getEventInfo(self, id, attribute, startkey=None):
         if startkey is None:
-            payload = {'id' : id, 'fields' : attribute, 'access_token' : self.authHash}
+            payload = {'id' : id, 'fields' : attribute, 'access_token' : self.access_token}
             return json.loads(requests.get(self.APIENDPOINT, params=payload).text)
         return json.loads(requests.get(startkey).text)
 
     def getHistoricalEvents(self, id, startkey=None):
         if startkey is None:
-            payload = {'id' : id, 'fields' : 'events', 'access_token' : self.authHash}
+            payload = {'id' : id, 'fields' : 'events', 'access_token' : self.access_token}
             events = json.loads(requests.get(self.APIENDPOINT, params=payload).text)
         else:
             events = json.loads(requests.get(startkey).text)
@@ -106,9 +106,9 @@ class FacebookApi:
             return (None, None)
 
     def facebookSearchName(self, name):
-        payload = {'q' : name, 'type' : 'page', 'center' : self.LOCATIONCENTER, 'distance' : self.DISTANCE, 'topic_filter' : 'all', 'access_token' : self.authHash}
+        payload = {'q' : name, 'type' : 'page', 'center' : self.LOCATIONCENTER, 'distance' : self.DISTANCE, 'topic_filter' : 'all', 'access_token' : self.access_token}
         return json.loads(requests.get(self.SEARCHENDPOINT, params=payload).text)
 
     def facebookGetAddress(self, id):
-        payload = {'id' : id, 'fields' : {'name', 'location'}, 'access_token' : self.authHash}
+        payload = {'id' : id, 'fields' : {'name', 'location'}, 'access_token' : self.access_token}
         return json.loads(requests.get(self.APIENDPOINT, params=payload).text)
