@@ -7,15 +7,15 @@ from general.tableiterator import TableIterator
 from facebookapi.facebookapi import FacebookApi
 
 
-ITERATORTABLENAME = "YelpVenues"
-PAGETABLENAME = "FacebookPages"
-EVENTTABLENAME = "FacebookEvents"
+ITERATORTABLENAME = "YelpVenuesFiltered"
+PAGETABLENAME = "FacebookPagesFiltered"
+EVENTTABLENAME = "FacebookEventsFiltered"
 ATTRIBUTES = "address_key, #L"
 dynamodb = boto3.resource('dynamodb', region_name='us-west-2')
 pagetable = dynamodb.Table(PAGETABLENAME)
 eventtable = dynamodb.Table(EVENTTABLENAME)
 
-tableiter = TableIterator(ITERATORTABLENAME)
+tableiter = TableIterator(ITERATORTABLENAME, 'address_key')
 response = tableiter.batchGetItemWithFBID()
 lastkey = response['LastEvaluatedKey']
 facebookapi = FacebookApi()
