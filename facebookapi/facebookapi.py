@@ -7,7 +7,7 @@ from time import sleep
 
 class FacebookApi:
 
-    secretsLocation = '/Users/tgebhart/Documents/Work/aivibe/code/api_stuff/keys/accesskeys.json'
+    secretsLocation = '/home/tgebhart/Documents/Work/aivibe/code/api_stuff/keys/accesskeys.json'
     app_id = ""
     app_secret = ""
     authHash = ""
@@ -36,7 +36,7 @@ class FacebookApi:
         append = "/oauth/access_token"
         payload = {'client_id' : self.app_id, 'client_secret' : self.app_secret, 'grant_type' : 'client_credentials'}
         resp = json.loads(requests.get(self.APIENDPOINT + append, params=payload).text)
-        self.access_token = resp
+        self.access_token = resp['access_token']
 
     def getSecretsLocation(self):
         return self.secretsLocation
